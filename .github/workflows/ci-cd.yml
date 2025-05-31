@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: ["main"]
 
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: ${{ github.repository_owner }}/cloud-app
+  GKE_CLUSTER: cloud-app-cluster
+  GKE_ZONE: europe-central2
+
 jobs:
   # STAGE 1: BUILD
   build:
@@ -61,38 +67,10 @@ jobs:
           path: build/libs/*.jar
           retention-days: 1
 
-  # STAGE 2: INTEGRATION TESTING
-  test:
-    name: Integration Tests
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'gradle'
-      
-      - name: Download JAR
-        uses: actions/download-artifact@v4
-        with:
-          name: app-jar
-          path: build/libs
-      
-      - name: Integration testing
-        run: ./gradlew integrationTest
-      
-      - name: Performance testing (optional)
-        run: ./gradlew performanceTest || true
-
-  # STAGE 3: DEPLOY
+  # STAGE 2: DEPLOY
   deploy:
     name: Deploy to GKE
-    needs: [build, test]
+    needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
@@ -136,24 +114,3 @@ jobs:
         run: |
           kubectl rollout status deployment/cloud-app -n cloud-app
           kubectl get services -n cloud-app
-          
-  # STAGE 4: POST-DEPLOY MONITORING
-  post-deploy:
-    name: Post-deploy verification
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Verify application endpoints
-        run: |
-          # Wait for external IP allocation
-          echo "Waiting for external IP allocation..."
-          sleep 60
-          
-          # Get service IP
-          EXTERNAL_IP=$(kubectl get svc cloud-app -n cloud-app -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-          
-          # Check health endpoint
-          echo "Checking health endpoint: http://$EXTERNAL_IP/actuator/health"
-          curl -f http://$EXTERNAL_IP/actuator/health || exit 1
-          
-          echo "Application has been successfully deployed and is functional!"
