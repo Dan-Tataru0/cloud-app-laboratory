@@ -98,7 +98,7 @@ jobs:
           
       - name: Update Kubernetes deployment
         run: |
-          DOCKER_IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/cloud-app:${GITHUB_SHA::7}
+          DOCKER_IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/cloud-app:sha-${GITHUB_SHA::7}
           
           sed -i "s|\${DOCKER_IMAGE}|${DOCKER_IMAGE}|g" kubernetes/deployment.yaml
           
