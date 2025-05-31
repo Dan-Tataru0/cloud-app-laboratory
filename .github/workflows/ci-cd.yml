@@ -98,12 +98,9 @@ jobs:
           
       - name: Update Kubernetes deployment
         run: |
-          export IMAGE_TAG=${GITHUB_SHA::7}
-          export REGISTRY=${{ env.REGISTRY }}
-          export IMAGE_NAME=${{ env.IMAGE_NAME }}
+          DOCKER_IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/cloud-app:${GITHUB_SHA::7}
           
-          # Generate final configuration files from templates
-          envsubst < kubernetes/deployment.tpl.yaml > kubernetes/deployment.yaml
+          sed -i "s|\${DOCKER_IMAGE}|${DOCKER_IMAGE}|g" kubernetes/deployment.yaml
           
           # Apply configurations
           kubectl create namespace cloud-app --dry-run=client -o yaml | kubectl apply -f -
