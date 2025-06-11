@@ -100,7 +100,7 @@ jobs:
         run: |
           DOCKER_IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/cloud-app:sha-${GITHUB_SHA::7}
           
-          sed -i "s|\${DOCKER_IMAGE}|${DOCKER_IMAGE}|g" kubernetes/deployment.yaml
+          sed -i "s|\${DOCKER_IMAGE}|${DOCKER_IMAGE}|g" kubernetes/deployment_github.yaml
           
           # Apply configurations
           kubectl create namespace cloud-app --dry-run=client -o yaml | kubectl apply -f -
