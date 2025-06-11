@@ -9,7 +9,7 @@ on:
 env:
   REGISTRY: docker.io
   IMAGE_NAME: ${{ github.repository_owner }}/cloud-app
-  GKE_CLUSTER: cloud-app-cluster
+  GKE_CLUSTER: cloud-app
   GKE_ZONE: europe-central2
 
 jobs:
