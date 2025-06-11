@@ -27,13 +27,3 @@ spec:
             limits:
               cpu: "200m"
               memory: "256Mi"
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 8080
-            initialDelaySeconds: 15
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 8080
-            initialDelaySeconds: 30
